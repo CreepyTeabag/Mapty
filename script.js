@@ -267,14 +267,47 @@ class App {
 
    _getLocalStorage() {
       const data = JSON.parse(localStorage.getItem('workouts'));
-
+      console.log(data);
       if (!data) return;
 
-      this.#workouts = data;
+      data.forEach(workout => {
+         this._newWorkoutFromStorage(workout);
+         // console.log(workout.type);
+      })
+
+
+      // this.#workouts = data;
 
       this.#workouts.forEach(workout => {
          this._renderWorkout(workout);
       })
+   }
+
+   _newWorkoutFromStorage(workout) {
+      // If workout is running, create running object
+      if (workout.type === 'running') {
+         newWorkout = new Running(workout.coords, workout.distance, workout.duration, workout.cadence);
+      }
+      
+      // If workout is cycling, create cycling object
+      if (workout.type === 'cycling') {
+         newWorkout = new Cycling(workout.coords, workout.distance, workout.duration, workout.elevationGain);
+      }
+
+            // Add the new object to workout array
+            this.#workouts.push(newWorkout);
+
+            // Render workout on map as marker
+            this._renderWorkoutMarker(newWorkout);
+      
+            // Render workout on the list
+            this._renderWorkout(newWorkout);
+      
+            // Hide form + clear input fields
+            this._hideForm();
+      
+            // Set local storage to all workouts
+            this._setLocalStorage();
    }
 
    reset() {
