@@ -60,6 +60,7 @@ const inputDistance = document.querySelector('.form__input--distance');
 const inputDuration = document.querySelector('.form__input--duration');
 const inputCadence = document.querySelector('.form__input--cadence');
 const inputElevation = document.querySelector('.form__input--elevation');
+const deleteAllBtn = document.querySelector('.delete-all');
 
 ////////////////////////////////////////////////////
 // APPLICATION ARCHITECTURE
@@ -80,6 +81,7 @@ class App {
       form.addEventListener('submit', this._newWorkout.bind(this));
       inputType.addEventListener('change', this._toggleElevationField);
       containerWorkouts.addEventListener('click', this._moveToPopup.bind(this));
+      deleteAllBtn.addEventListener('click', this._deleteAllWorkouts.bind(this));
    }
 
    _getPosition() {
@@ -308,6 +310,12 @@ class App {
 
       // // Set local storage to all workouts
       this._setLocalStorage();
+   }
+
+   _deleteAllWorkouts() {
+      if (confirm('Are you sure you want to delete ALL workouts? This action is irreversible.')) {
+         this.reset();
+      }
    }
 
    reset() {
