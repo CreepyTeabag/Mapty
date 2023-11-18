@@ -3,6 +3,7 @@
 class Workout {
    date = new Date();
    id = (Date.now() + '').slice(-10);
+   clicks = 0;
 
    constructor(coords, distance, duration) {
       this.coords = coords; // [lat, lng]
@@ -13,6 +14,10 @@ class Workout {
    _setDescription() {
       const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
       this.description = `${this.type[0].toUpperCase()}${this.type.slice(1)} on ${months[this.date.getMonth()]} ${this.date.getDate()}`;
+   }
+
+   click() {
+      this.clicks++;
    }
 }
 
@@ -259,6 +264,10 @@ class App {
             duration: 1,
          }
       });
+
+      // using the public interface
+      workout.click();
+      this._setLocalStorage();
    }
 
    _setLocalStorage() {
@@ -267,47 +276,38 @@ class App {
 
    _getLocalStorage() {
       const data = JSON.parse(localStorage.getItem('workouts'));
-      console.log(data);
       if (!data) return;
 
       data.forEach(workout => {
-         this._newWorkoutFromStorage(workout);
-         // console.log(workout.type);
-      })
-
-
-      // this.#workouts = data;
-
-      this.#workouts.forEach(workout => {
-         this._renderWorkout(workout);
+         this._restoreWorkoutFromStorage(workout);
       })
    }
 
-   _newWorkoutFromStorage(workout) {
+   _restoreWorkoutFromStorage(workout) {
+      let restoredWorkout;
       // If workout is running, create running object
       if (workout.type === 'running') {
-         newWorkout = new Running(workout.coords, workout.distance, workout.duration, workout.cadence);
+         restoredWorkout = new Running(workout.coords, workout.distance, workout.duration, workout.cadence);
       }
       
       // If workout is cycling, create cycling object
       if (workout.type === 'cycling') {
-         newWorkout = new Cycling(workout.coords, workout.distance, workout.duration, workout.elevationGain);
+         restoredWorkout = new Cycling(workout.coords, workout.distance, workout.duration, workout.elevationGain);
       }
 
-            // Add the new object to workout array
-            this.#workouts.push(newWorkout);
+      restoredWorkout.clicks = workout.clicks;
 
-            // Render workout on map as marker
-            this._renderWorkoutMarker(newWorkout);
-      
-            // Render workout on the list
-            this._renderWorkout(newWorkout);
-      
-            // Hide form + clear input fields
-            this._hideForm();
-      
-            // Set local storage to all workouts
-            this._setLocalStorage();
+      // Add the new object to workout array
+      this.#workouts.push(restoredWorkout);
+
+      // // Render workout on the list
+      this._renderWorkout(restoredWorkout);
+
+      // // Hide form + clear input fields
+      this._hideForm();
+
+      // // Set local storage to all workouts
+      this._setLocalStorage();
    }
 
    reset() {
